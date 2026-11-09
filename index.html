@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eef0f4">
+<title>LabMotion</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef0f4;color:#111;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.app{max-width:620px;min-height:100vh;margin:auto;padding:18px 16px 34px}
+.screen{display:none}.screen.active{display:block}
+.card{background:#fff;border-radius:28px;padding:28px 22px;box-shadow:0 4px 18px rgba(0,0,0,.06);border:1px solid #e2e4e9}
+h1{text-align:center;font-size:36px;margin:12px 0 6px;font-weight:800}h2{text-align:center;font-size:25px;margin:4px 0 20px}
+.subtitle{text-align:center;font-size:17px;line-height:1.35;margin:0 auto 22px;max-width:390px}
+.note{background:#f0f1f5;border-radius:18px;padding:17px;text-align:center;font-size:16px;line-height:1.35;margin:20px 0}
+.illustration{height:210px;position:relative;margin:8px auto 12px;max-width:390px}
+.ground{position:absolute;bottom:30px;left:12%;width:76%;height:4px;background:#222}
+.plane{position:absolute;bottom:32px;left:12%;width:70%;height:4px;background:#222;transform:rotate(-24deg);transform-origin:left center}
+.phone{position:absolute;left:38%;bottom:79px;width:110px;height:54px;border-radius:12px;background:#252525;transform:rotate(-24deg);box-shadow:0 8px 15px #0004}
+.theta{position:absolute;left:55%;bottom:46px;font-size:35px}
+button{width:100%;border:0;border-radius:16px;padding:15px 18px;font-size:17px;font-weight:800;cursor:pointer;margin-top:10px}
+.primary{background:#2764d8;color:#fff}.secondary{background:#eef0f4;color:#111;border:1px solid #d8dbe2}
+.permission{font-size:13px;color:#606775;text-align:center;margin-top:12px;line-height:1.4}
+.data{display:grid;gap:10px;margin:16px 0}.row{background:#f1f2f5;border-radius:14px;padding:14px 15px;display:flex;justify-content:space-between;gap:10px;font-size:16px}.row b{font-size:17px}
+.live{text-align:center;color:#2764d8;font-weight:800;margin:5px 0 12px}.spinner{width:38px;height:38px;border:4px solid #dce5f7;border-top-color:#2764d8;border-radius:50%;margin:12px auto 15px;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}th,td{padding:9px 5px;border-bottom:1px solid #ddd;text-align:center}th{font-weight:800}
+.results{display:grid;gap:9px;margin:15px 0}.result{background:#f1f2f5;border-radius:13px;padding:12px 14px;display:flex;justify-content:space-between}.result b{font-size:16px}
+.small{font-size:12px;color:#68707e;text-align:center;line-height:1.45;margin-top:16px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.brand{font-weight:900;font-size:18px}.step{font-size:12px;color:#68707e}
+@media(min-width:700px){.app{padding-top:35px}.card{padding:34px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<section id="home" class="screen active">
+<div class="card">
+<div class="brand">LabMotion</div>
+<h1>LabMotion</h1>
+<p class="subtitle">Estudio del movimiento<br>en un plano inclinado</p>
+<div class="illustration" aria-hidden="true"><div class="ground"></div><div class="plane"></div><div class="phone"></div><div class="theta">θ</div></div>
+<div class="note">Coloca el celular o iPad<br>sobre el plano inclinado</div>
+<button class="primary" onclick="startExperiment()">Iniciar acelerómetro</button>
+<div class="permission">El navegador solicitará permiso para usar los sensores de movimiento.</div>
+</div>
+</section>
+
+<section id="measure" class="screen">
+<div class="top"><div class="brand">LabMotion</div><div class="step">MEDICIÓN</div></div>
+<div class="card">
+<h2>Medición en curso</h2><div class="spinner"></div><div class="live" id="status">Esperando sensor…</div>
+<div class="data">
+<div class="row"><span>Aceleración X:</span><b id="x">0.00 m/s²</b></div>
+<div class="row"><span>Aceleración Y:</span><b id="y">0.00 m/s²</b></div>
+<div class="row"><span>Aceleración Z:</span><b id="z">0.00 m/s²</b></div>
+<div class="row"><span>Ángulo aproximado:</span><b id="ang">— °</b></div>
+</div>
+<button class="primary" onclick="record()">Registrar medición</button>
+<button class="secondary" onclick="finish()">Ver resultados</button>
+<p class="small">Realiza al menos 5 mediciones bajo las mismas condiciones.</p>
+</div>
+</section>
+
+<section id="results" class="screen">
+<div class="top"><div class="brand">LabMotion</div><div class="step">RESULTADOS</div></div>
+<div class="card">
+<h2>Resultados</h2>
+<div class="results">
+<div class="result"><span>Ángulo aproximado:</span><b id="ra">—</b></div>
+<div class="result"><span>Aceleración experimental:</span><b id="re">—</b></div>
+<div class="result"><span>Aceleración teórica:</span><b id="rt">—</b></div>
+<div class="result"><span>Error porcentual:</span><b id="rerr">—</b></div>
+<div class="result"><span>Promedio:</span><b id="rav">—</b></div>
+<div class="result"><span>Desviación estándar:</span><b id="rsd">—</b></div>
+</div>
+<h3 style="text-align:center;margin:20px 0 8px">Tabla de mediciones</h3>
+<table><thead><tr><th>N°</th><th>Ángulo (°)</th><th>Aceleración (m/s²)</th></tr></thead><tbody id="table"></tbody></table>
+<button class="primary" onclick="newExperiment()">Nuevo experimento</button>
+<p class="small">Modelo teórico utilizado: a = 9,81 · sen(θ)</p>
+</div>
+</section>
+</div>
+
+<script>
+let measurements=[], current={x:0,y:0,z:0,angle:null}, timer=null;
+const g=9.81;
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
+function startExperiment(){
+ show('measure'); measurements=[]; current={x:0,y:0,z:0,angle:null};
+ if(typeof DeviceMotionEvent!=='undefined' && typeof DeviceMotionEvent.requestPermission==='function'){
+   DeviceMotionEvent.requestPermission().then(p=>{ if(p==='granted') attach(); else fallback(); }).catch(fallback);
+ } else attach();
+ if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+   DeviceOrientationEvent.requestPermission().catch(()=>{});
+ }
+}
+function fallback(){document.getElementById('status').textContent='Sensor no disponible: puedes registrar mediciones manualmente.'}
+function attach(){
+ window.addEventListener('devicemotion',motion,true);
+ window.addEventListener('deviceorientation',orientation,true);
+ document.getElementById('status').textContent='Sensor activo';
+}
+function motion(e){
+ const a=e.acceleration || e.accelerationIncludingGravity || {};
+ current.x=Number(a.x||0);current.y=Number(a.y||0);current.z=Number(a.z||0);
+ document.getElementById('x').textContent=current.x.toFixed(2)+' m/s²';
+ document.getElementById('y').textContent=current.y.toFixed(2)+' m/s²';
+ document.getElementById('z').textContent=current.z.toFixed(2)+' m/s²';
+}
+function orientation(e){
+ if(Number.isFinite(e.beta)){current.angle=Math.abs(e.beta);document.getElementById('ang').textContent=current.angle.toFixed(1)+' °'}
+}
+function accelerationMagnitude(){return Math.sqrt(current.x**2+current.y**2+current.z**2)}
+function record(){
+ const angle=Number.isFinite(current.angle)?current.angle:15;
+ const experimental=accelerationMagnitude();
+ const theoretical=g*Math.sin(angle*Math.PI/180);
+ measurements.push({angle,experimental,theoretical,error:theoretical?Math.abs(experimental-theoretical)/Math.abs(theoretical)*100:0});
+ document.getElementById('status').textContent='Medición '+measurements.length+' registrada';
+}
+function finish(){
+ if(!measurements.length) record();
+ const last=measurements[measurements.length-1];
+ document.getElementById('ra').textContent=last.angle.toFixed(1)+' °';
+ document.getElementById('re').textContent=last.experimental.toFixed(2)+' m/s²';
+ document.getElementById('rt').textContent=last.theoretical.toFixed(2)+' m/s²';
+ document.getElementById('rerr').textContent=last.error.toFixed(1)+' %';
+ const vals=measurements.map(m=>m.experimental), avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+ const sd=Math.sqrt(vals.reduce((s,v)=>s+(v-avg)**2,0)/vals.length);
+ document.getElementById('rav').textContent=avg.toFixed(2)+' m/s²';
+ document.getElementById('rsd').textContent=sd.toFixed(2)+' m/s²';
+ document.getElementById('table').innerHTML=measurements.map((m,i)=>`<tr><td>${i+1}</td><td>${m.angle.toFixed(1)}</td><td>${m.experimental.toFixed(2)}</td></tr>`).join('');
+ show('results');
+}
+function newExperiment(){show('home');}
+</script>
+</body>
+</html>
